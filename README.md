@@ -10,7 +10,7 @@ modeled after pds-release, but this will also include code/submodule for a dashb
 
 ## Building
 
-docker build -t fuse-immcellfie-cellfie .
+`docker build -t fuse-immcellfie-cellfie .`
 
 ## Linting
 
@@ -18,6 +18,6 @@ For linting this project using the python linter "black"
 
 ## Running test
 
-docker build -f test/Dockerfile -t test_fuse .
+`docker build -f test/Dockerfile -t test_fuse .`
 
-docker run test_fuse
+`docker run test_fuse`
