@@ -4,19 +4,19 @@ Main API, tickets, and project board to be used by dashboards supporting ImmCell
 
 modeled after pds-release, but this will also include code/submodule for a dashboard
 
-# Running
+## Running
 
-docker-compose up
+`docker-compose up`
 
-# Building
+## Building
 
 docker build -t fuse-immcellfie-cellfie .
 
-# Linting
+## Linting
 
 For linting this project using the python linter "black"
 
-# Running test
+## Running test
 
 docker build -f test/Dockerfile -t test_fuse .
 
