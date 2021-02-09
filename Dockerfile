@@ -11,6 +11,7 @@ RUN pip3 install --no-cache-dir -r /usr/src/app/requirements.txt
 
 COPY api /usr/src/app/api
 COPY tx-utils/src /usr/src/app
+COPY data /usr/src/app/data
 
 EXPOSE 8080
 

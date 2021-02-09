@@ -29,6 +29,21 @@ paths:
                 type: string
                 example: "hello dave!"
 
+  /serve_file:
+    get:
+      summary: Returns file from the data dir
+      description: >-
+        Returns file from the data dir
+      operationId: api.routes.serve_file
+      responses:
+        200:
+          description: greeting response
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "hello dave!"
+
   /patientVariables:
     post:
       summary: Return patient variables required by a guidance plugin

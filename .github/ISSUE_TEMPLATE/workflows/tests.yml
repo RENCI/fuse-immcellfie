@@ -1,0 +1,21 @@
+name: tests
+
+on:
+  push:
+    branches: main
+
+jobs:
+  run-tests:
+    name: test the codebase
+
+  steps:
+    - name: Checkout codebase
+      uses: actions/checkout@v2
+
+    - name: build test dockerfile
+      # uses:
+
+    - name: run test dockerfile
+    # uses:
+    # env:
+    #   DEFAULT_BRANCH: master
