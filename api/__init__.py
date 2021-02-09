@@ -13,12 +13,12 @@ list_traversable_either_applicative = list_traversable(either_applicative)
 post_headers = {"Content-Type": "application/json", "Accept": "application/json"}
 
 
-pds_host = os.environ["PDS_HOST"]
-pds_port = os.environ["PDS_PORT"]
-pds_config = os.environ["PDS_CONFIG"]
-pds_version = os.environ["PDS_VERSION"]
-pds_logging = os.environ["PDS_LOGGING"]
-pds_url_base = f"http://{pds_host}:{pds_port}/{pds_version}/plugin"
+# pds_host = os.environ["PDS_HOST"]
+# pds_port = os.environ["PDS_PORT"]
+# pds_config = os.environ["PDS_CONFIG"]
+# pds_version = os.environ["PDS_VERSION"]
+# pds_logging = os.environ["PDS_LOGGING"]
+# pds_url_base = f"http://{pds_host}:{pds_port}/{pds_version}/plugin"
 
 
 def log(level, event, source, *args, **kwargs):

@@ -1,0 +1,7 @@
+pytest
+tx-functional
+requests
+
+# tx reqs
+python-dateutil
+jsonschema
