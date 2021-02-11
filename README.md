@@ -4,6 +4,10 @@ Main API, tickets, and project board to be used by dashboards supporting ImmCell
 
 modeled after pds-release, but this will also include code/submodule for a dashboard
 
+## After cloning
+
+Run `git submodule update --init` to get all the git submodules
+
 ## Running
 
 `docker-compose up`
