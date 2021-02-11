@@ -5,3 +5,4 @@ connexion[swagger-ui]
 requests 
 tx-functional 
 python-dateutil
+flask_cors

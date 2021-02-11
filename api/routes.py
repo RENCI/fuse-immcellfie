@@ -1,12 +1,14 @@
 import os
 
-from flask import Response, request, jsonify
+from flask import Response, jsonify, request
+from flask_cors import CORS, cross_origin
 
 
 def hello_world():
     return "hello world"
 
 
+@cross_origin()
 def serve_file():
     if filename := request.args.get("filename"):
         try:
