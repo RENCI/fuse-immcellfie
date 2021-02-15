@@ -1,4 +1,4 @@
-https://github.com/RENCI/fuse-immcellfie/workflows/tests/badge.svg
+[![Actions Status: tests](https://github.com/RENCI/fuse-immcellfie/workflows/tests/badge.svg)](https://github.com/RENCI/fuse-immcellfie/actions?query=workflow%3A"tests")
 
 fuse-immcellfie/actions)
 
