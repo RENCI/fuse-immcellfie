@@ -5,6 +5,7 @@ on: [push, pull_request]
 jobs:
   run-tests:
     name: test the codebase
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
