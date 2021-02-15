@@ -1,21 +1,17 @@
 name: tests
 
-on:
-  push:
-    branches: main
+on: [push]
 
 jobs:
   run-tests:
     name: test the codebase
 
   steps:
-    - name: Checkout codebase
+    - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: build test dockerfile
-      # uses:
+    - name: Build docker images
+      run: docker-compose build
 
-    - name: run test dockerfile
-    # uses:
-    # env:
-    #   DEFAULT_BRANCH: master
+    - name: Run tests
+      run: docker-compose run test
