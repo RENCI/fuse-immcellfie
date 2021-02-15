@@ -1,3 +1,5 @@
+[![YourActionName Actions Status](https://github.com/{luthfib}/{fuse-immcellfie}/workflows/{tests}/badge.svg)](https://github.com/{luthfib}/{fuse-immcellfie}/actions)
+
 # fuse-immcellfie
 
 Main API, tickets, and project board to be used by dashboards supporting ImmCellFIE project
