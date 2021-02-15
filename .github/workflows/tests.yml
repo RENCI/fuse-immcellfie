@@ -5,12 +5,13 @@ on: [push, pull_request]
 jobs:
   run-tests:
     name: test the codebase
-  steps:
-  - name: Checkout code
-    uses: actions/checkout@v2
 
-  - name: Build docker images
-    run: docker-compose build
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-  - name: Run tests
-    run: docker-compose run test
+      - name: Build docker images
+        run: docker-compose build
+
+      - name: Run tests
+        run: docker-compose run test
