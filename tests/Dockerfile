@@ -9,6 +9,6 @@ COPY tx-utils/src /usr/src/app
 
 RUN apk add gcc file make python3-dev musl-dev libffi-dev openssl-dev g++
 
-RUN pip3 install --no-cache-dir -r /usr/src/app/test/requirements.txt
+RUN pip3 install --no-cache-dir -r /usr/src/app/tests/requirements.txt
 
 CMD ["python3", "-m", "pytest", "/usr/src/app/test/"]
