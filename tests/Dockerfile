@@ -3,7 +3,7 @@ FROM python:3.8-alpine
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 
-COPY test /usr/src/app/test
+COPY tests /usr/src/app/tests
 COPY api /usr/src/app/api
 COPY tx-utils/src /usr/src/app
 
