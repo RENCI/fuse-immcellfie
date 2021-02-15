@@ -1,4 +1,6 @@
-[![YourActionName Actions Status](https://github.com/{luthfib}/{fuse-immcellfie}/workflows/{tests}/badge.svg)](https://github.com/{luthfib}/{fuse-immcellfie}/actions)
+https://github.com/RENCI/fuse-immcellfie/workflows/tests/badge.svg
+
+fuse-immcellfie/actions)
 
 # fuse-immcellfie
 
