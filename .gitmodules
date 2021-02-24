@@ -1,6 +1,3 @@
 [submodule "moduel/fuse-immcellfie-api"]
 	path = module/fuse-immcellfie-api
 	url = https://github.com/RENCI/fuse-immcellfie
-[submodule "module/fuse-immcellfie-api"]
-	path = module/fuse-immcellfie-api
-	url = https://github.com/RENCI/fuse-immcellfie
