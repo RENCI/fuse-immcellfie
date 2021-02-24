@@ -1,0 +1,26 @@
+# Remove script for PDS framework, see: https://github.com/RENCI/pds
+#
+# PDS is a framework and API specifications aimed at streamlining the
+# clinical innovation pipeline from peer-reviewed research to safe,
+# effective, validated, evidence-based and personalized clinical
+# decision support.
+#
+# APIs include:
+#
+#  Guidance - Code to this API if you aim to build a clinical decision
+#  support model.
+#
+#  Mapper - Code to this API if you are a data steward aiming to
+#  provide clinically-relevant patient variables extracted from the
+#  patient record.
+#
+#  pds - Code to this API if you wish to build a dashboard or
+#  integration for using clinical decision support models
+#
+#
+# MIT License
+#
+# Copyright (c) 2019 Renaissance Computing Institute
+
+docker rm -f $(docker ps -qa)
+docker system prune -af --volumes

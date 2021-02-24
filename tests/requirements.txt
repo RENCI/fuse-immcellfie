@@ -1,9 +1,0 @@
-pytest
-tx-functional
-requests
-flask
-flask_cors
-
-# tx reqs
-python-dateutil
-jsonschema

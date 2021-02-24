@@ -1,3 +1,3 @@
-[submodule "tx-utils"]
-	path = tx-utils
-	url = https://github.com/RENCI/tx-utils
+[submodule "moduel/fuse-immcellfie-api"]
+	path = moduel/fuse-immcellfie-api
+	url = https://github.com/RENCI/fuse-immcellfie

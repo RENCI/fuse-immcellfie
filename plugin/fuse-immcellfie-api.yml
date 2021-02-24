@@ -1,0 +1,11 @@
+version: "3.4"
+services:
+  fuse_immcellfie_api:
+    port: 8080
+    image: fuse_immcellfie_api:${fuse_immcellfie_api}
+    environment:
+      FUSE_IMMCELLFIE_API_HOST: ${FUSE_IMMCELLFIE_API_HOST}
+      FUSE_IMMCELLFIE_API_PORT: ${FUSE_IMMCELLFIE_API_PORT}
+      FUSE_IMMCELLFIE_API_VERSION: ${FUSE_IMMCELLFIE_API_VERSION}
+      FUSE_IMMCELLFIE_API_CONFIG: ${FUSE_IMMCELLFIE_API_CONFIG}
+      FUSE_IMMCELLFIE_API_LOGGING: ${FUSE_IMMCELLFIE_API_LOGGING}

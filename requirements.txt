@@ -1,8 +1,3 @@
-flask 
-gevent==21.1.2 
-gunicorn==20.0.4 
-connexion[swagger-ui] 
-requests 
-tx-functional 
-python-dateutil
-flask_cors
+envbash
+docker
+GitPython
