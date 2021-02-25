@@ -1,2 +1,2 @@
 #!/bin/bash
-python system.py deploy
+python3 system.py deploy
