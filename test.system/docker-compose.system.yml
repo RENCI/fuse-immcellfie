@@ -1,0 +1,10 @@
+version: "3.4"
+services:
+  pdsaggregator-test:
+    build:
+      context: test
+      dockerfile: Dockerfile.system
+    command: ["-s", "-vv"]
+    network_mode: host
+    depends_on:
+      - txrouter

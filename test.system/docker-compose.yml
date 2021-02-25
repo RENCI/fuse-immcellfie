@@ -1,0 +1,45 @@
+version: "3.4"
+
+services:
+  mongodb:
+    container_name: ${MONGO_CONTAINER}
+    image: tx-persistence:${tx_router_tx_persistence_TAG}
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+      MONGO_INITDB_DATABASE: ${MONGO_DATABASE}
+      MONGO_NON_ROOT_USERNAME: ${MONGO_NON_ROOT_USERNAME}
+      MONGO_NON_ROOT_PASSWORD: ${MONGO_NON_ROOT_PASSWORD}
+
+  txrouter:
+    container_name: txrouter
+    image: tx-router:${tx_router_TAG}
+    environment:
+      API_PORT: ${TXROUTER_API_PORT}
+      COMPOSE_PROJECT_NAME: ${COMPOSE_PROJECT_NAME}
+      MONGO_HOST: ${MONGO_HOST}
+      MONGO_PORT: ${MONGO_PORT}
+      MONGO_COLLECTION: ${MONGO_COLLECTION}
+      MONGO_DATABASE: ${MONGO_DATABASE}
+      MONGO_NON_ROOT_USERNAME: ${MONGO_NON_ROOT_USERNAME}
+      MONGO_NON_ROOT_PASSWORD: ${MONGO_NON_ROOT_PASSWORD}
+      INIT_PLUGIN_PATH: /plugin
+      JWT_SECRET: ${JWT_SECRET}
+      LOGGING: ${LOGGING}
+      HOST_CWD: ${PWD}
+    env_file:
+      - env.txrouter
+    volumes:
+      - ${DOCKER_SOCK}:/var/run/docker.sock
+      - ${INIT_PLUGIN_PATH}:/plugin
+    depends_on:
+      - mongodb
+
+networks:
+  default:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: ${IPAM_CONFIG_SUBNET}
