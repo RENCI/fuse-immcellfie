@@ -1,3 +1,7 @@
 [submodule "module/fuse-immcellfie-api"]
 	path = module/fuse-immcellfie-api
 	url = https://github.com/RENCI/fuse-immcellfie-api
+[submodule "module/tx-router"]
+	path = module/tx-router
+	url = https://github.com/RENCI/tx-router
+	branch = feature/fix-dockerfile-build-issue
