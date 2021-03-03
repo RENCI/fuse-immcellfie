@@ -4,4 +4,4 @@
 	branch = feature/fix-dockerfile-build-issue
 [submodule "module/fuse-immcellfie-api"]
 	path = module/fuse-immcellfie-api
-	url = https://github.com/RENCI/fuse-immcellfie
+	url = https://github.com/RENCI/fuse-immcellfie-api
