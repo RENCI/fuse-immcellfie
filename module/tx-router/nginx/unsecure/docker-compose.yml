@@ -1,9 +1,0 @@
-version: "3.4"
-services:
-  txrouter-nginx:
-    build:
-      context: nginx/unsecure
-    ports:
-      - $API_PORT:8080
-    depends_on:
-      - txrouter
