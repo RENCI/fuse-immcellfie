@@ -5,3 +5,9 @@
 Main API, tickets, and project board to be used by dashboards supporting ImmCellFIE project
 
 modeled after pds-release, but this will also include code/submodule for a dashboard
+
+## Running
+
+Run `git submodule update --init --recursive`
+
+Then you can run `up.sh`
