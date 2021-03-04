@@ -1,0 +1,373 @@
+openapi: 3.0.0
+info:
+  description: |
+    This is a sample logging server.
+  version: "1"
+  title: pds backend
+tags:
+  - name: plugin
+    description: plugin endpoints
+  - name: admin
+    description: admin endpoints
+  - name: metadata
+    description: metadata endpoints
+paths:
+  # /v1/plugin/{name}/{path}:
+  #   post:
+  #     tags:
+  #       - plugin
+  #     summary: call a plugin via the post method
+  #     operationId: api.post_plugin
+  #     parameters:
+  #       - in: path
+  #         name: name
+  #         schema:
+  #           type: string
+  #         required: true
+  #       - in: path
+  #         name: path
+  #         schema:
+  #           type: string
+  #           format: path
+  #         required: true
+  #       - in: query
+  #         name: kwargs
+  #         schema:
+  #           type: object
+  #           additionalProperties: true
+  #         style: form
+  #         explode: true
+  #     responses:
+  #       '200':
+  #         description: successful operation
+  #     requestBody:
+  #       content:
+  #         application/json:
+  #           schema: {}
+  #   get:
+  #     tags:
+  #       - plugin
+  #     summary: call a plugin via the get method
+  #     description: call a plugin via the get method
+  #     operationId: api.get_plugin
+  #     parameters:
+  #       - in: path
+  #         name: name
+  #         schema:
+  #           type: string
+  #         required: true
+  #       - in: path
+  #         name: path
+  #         schema:
+  #           type: string
+  #           format: path
+  #         required: true
+  #       - in: query
+  #         name: kwargs
+  #         schema:
+  #           type: object
+  #           additionalProperties: true
+  #         style: form
+  #         explode: true
+  #     responses:
+  #       '200':
+  #         description: successful operation
+  #       '400':
+  #         description: Invalid value
+  /v1/admin/plugin:
+    put:
+      tags:
+        - admin
+      summary: create a new plugin
+      security:
+        - oauth2: ["admin"]
+      operationId: api.add_plugin_configs
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/PluginConfig'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: integer
+        '400':
+          description: Invalid value
+    get:
+      tags:
+        - admin
+      summary: get plugin configs
+      security:
+        - oauth2: ["admin"]
+      operationId: api.get_plugin_configs
+      parameters:
+        - in: query
+          name: name
+          schema:
+            type: string
+        - in: query
+          name: name_regex
+          schema:
+            type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PluginConfig'
+        '400':
+          description: Invalid value
+    delete:
+      tags:
+        - admin
+      summary: delete plugin configs
+      security:
+        - oauth2: ["admin"]
+      operationId: api.delete_plugin_configs
+      parameters:
+        - in: query
+          name: name
+          schema:
+            type: string
+        - in: query
+          name: name_regex
+          schema:
+            type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: integer
+        '400':
+          description: Invalid value
+  /v1/admin/plugin/{name}:
+    get:
+      tags:
+        - admin
+      summary: get plugin configs
+      security:
+        - oauth2: ["admin"]
+      operationId: api.get_plugin_config
+      parameters:
+        - in: path
+          name: name
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PluginConfig'
+        '400':
+          description: Invalid value
+    delete:
+      tags:
+        - admin
+      summary: delete plugin config
+      security:
+        - oauth2: ["admin"]
+      operationId: api.delete_plugin_config
+      parameters:
+        - in: path
+          name: name
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: successful operation
+        '400':
+          description: Invalid value
+    post:
+      tags:
+        - admin
+      summary: update plugin config
+      security:
+        - oauth2: ["admin"]
+      operationId: api.update_plugin_config
+      parameters:
+        - in: path
+          name: name
+          schema:
+            type: string
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PluginConfig'
+      responses:
+        '200':
+          description: successful operation
+        '400':
+          description: Invalid value
+  /v1/admin/plugin/{name}/container:
+    get:
+      tags:
+        - admin
+      summary: get plugin container
+      security:
+        - oauth2: ["admin"]
+      operationId: api.get_plugin_container
+      parameters:
+        - in: path
+          name: name
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContainerStatus'
+        '400':
+          description: Invalid value
+    put:
+      tags:
+        - admin
+      summary: create plugin container
+      security:
+        - oauth2: ["admin"]
+      operationId: api.add_plugin_container
+      parameters:
+        - in: path
+          name: name
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: successful operation
+        '400':
+          description: Invalid value
+    delete:
+      tags:
+        - admin
+      summary: update plugin container
+      security:
+        - oauth2: ["admin"]
+      operationId: api.delete_plugin_container
+      parameters:
+        - in: path
+          name: name
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: successful operation
+        '400':
+          description: Invalid value
+
+  /v1/admin/container:
+    get:
+      tags:
+        - admin
+      summary: get container
+      security:
+        - oauth2: ["admin"]
+      operationId: api.get_containers
+      parameters:  []
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContainerStatus'
+        '400':
+          description: Invalid value
+    put:
+      tags:
+        - admin
+      summary: create container
+      security:
+        - oauth2: ["admin"]
+      operationId: api.add_containers
+      parameters: []
+      responses:
+        '200':
+          description: successful operation
+        '400':
+          description: Invalid value
+    delete:
+      tags:
+        - admin
+      summary: delete container
+      security:
+        - oauth2: ["admin"]
+      operationId: api.delete_containers
+      parameters: []
+      responses:
+        '200':
+          description: successful operation
+        '400':
+          description: Invalid value
+components:
+  schemas:
+    PluginConfig:
+      type: object
+      properties:
+        name:
+          type: string
+        port:
+          type: integer
+        image:
+          type: string
+        environment:
+          type: object
+        volumes:
+          type: array
+          items:
+            type: object
+            properties:
+              source:
+                type: string
+              target:
+                type: string
+              type:
+                type: string
+              read_only:
+                type: boolean
+            required:
+              - source
+              - target
+              - type
+              - read_only
+            additionalProperties: false
+        depends_on:
+          type: array
+          items:
+            type: string
+      required:
+        - image
+        - name
+        - port
+      additionalProperties: false
+    ContainerStatus:
+      type: object
+  securitySchemes:
+    oauth2:
+      type: oauth2
+      x-tokenInfoFunc: api.jwt.decode_token
+      flows:
+        implicit:
+          authorizationUrl: https://example.com/oauth2/dialog
+          scopes:
+            admin: admin
+            guest: guest

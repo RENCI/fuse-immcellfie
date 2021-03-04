@@ -1,0 +1,6 @@
+[submodule "tx-utils"]
+	path = tx-utils
+	url = https://github.com/RENCI/tx-utils
+[submodule "tx-persistence"]
+	path = tx-persistence
+	url = https://github.com/RENCI/tx-persistence

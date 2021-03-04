@@ -1,0 +1,1458 @@
+openapi: 3.0.0
+servers: []
+info:
+  description: >-
+    The PDS is the main interface to the PDS application for providing clinical
+    decision support for end users. The PDS is a highly fault-tolerant system,
+    meaning that it will attempt to correct errors in order to keep running and
+    avoid catastrophic failure. This means that these endpoints will attempt to
+    return some kind of meaningful data along with 4xx (Client Error) and 5xx
+    (Server Error) status codes. The onus is on the client to check and
+    determine how to render the data returned along with these codes.
+  version: "5"
+  title: "PDS plugin: primary platform interface"
+  contact:
+    email: txscience@lists.renci.org
+paths:
+  /hello_world:
+    get:
+      summary: Returns hello world
+      description: >-
+        Sample hello world call
+      operationId: api.routes.hello_world
+      responses:
+        200:
+          description: greeting response
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "hello dave!"
+
+  /api/serve_file:
+    get:
+      summary: Returns file from the data dir
+      description: >-
+        Returns file from the data dir
+      operationId: api.routes.serve_file
+      responses:
+        200:
+          description: greeting response
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "hello dave!"
+
+  /patientVariables:
+    post:
+      summary: Return patient variables required by a guidance plugin
+      description: >-
+        Given a guidance plugin id (piid), mapper, FHIR plugin and patient id list
+        (patientIds), return all the relevant mapped patient variable values for each patient
+        in the patient id list. If patientVariables values in settingsRequested
+        are defined, they will override values from the mapper. If no
+        mapper or FHIR server are specified, patient variable values are
+        returned using the system default mapper and FHIR server. If no default
+        is set, 5xx message will warn that defaults were selected arbitrarily
+        and the client should react appropriately. PatientVariables define 
+        legalValues to enable verification of the returned value. Patient variable values are also returned by the
+        '/guidance' endpoint.
+      operationId: api.get_patient_variables
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                fhirPiid:
+                  type: string
+                  example: "pdspi-fhir-example"
+                guidancePiid:
+                  type: string
+                  example: "pdspi-guidance-example"
+                mapperPiid:
+                  type: string
+                  example: "pdspi-mapper-example"
+                patientIds:
+                  example: ["smart-7321938"]
+                  type: array
+                  items:
+                    type: string
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    patientId:
+                      type: string
+                    values:
+                      type: array
+                      items:
+                        $ref: "#/components/schemas/PatientVariable"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  messages:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Message"
+                    example:
+                      - timestamp: "2019-09-20T00:00:01Z"
+                        event: >-
+                          Mapper[pdspi-mapper-example] not compatible with FHIR
+                          server[pdspi-fhir-hapi]
+                        source: admin user
+                        level: 1
+                        action: >-
+                          Use arbitrary FHIR server[pdspi-fhir-example]. Only
+                          one FHIR server available that is also compatible with
+                          Mapper[pdspi-mapper-example]
+                  values:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/PatientVariable"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Message"
+                    example:
+                      - timestamp: "2019-09-20T00:00:01Z"
+                        event: >-
+                          No FHIR server specified and no default FHIR server
+                          found
+                        source: admin user
+                        level: 1
+                        action: >-
+                          Returning values from arbitrary, compatible FHIR
+                          server[pdspi-fhir-example].
+                  values:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/PatientVariable"
+  /config:
+    get:
+      summary: Configuration and default info for plugin(s)
+      description: >-
+        Gets list of plugins with their selector values, default parameter
+        settings, and required patient variables. Legal values for selectors is
+        optional, and if required, call the '/selectors' endpoint. Legal values
+        for a plugin's parameters and required patient variables, if any, can be
+        found with this call.
+      operationId: api.get_config
+      parameters:
+        - name: piid
+          description: >-
+            If present, include only information about the indicated plugin. if
+            not present, return all guidance piids and their info.
+          example: pdspi-guidance-example
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Config matching query
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Config"
+                example:
+                  - piid: pdspi-fhir-example
+                    title: Example plugin for fhir smart-fhir server
+                    pluginType: f
+                    settingsDefaults:
+                      pluginSelectors:
+                        - id: "FHIR.URI"
+                          title: FHIR Server URL
+                          legalValues:
+                            type: string
+                            enum:
+                              - value: "urn://cdwh.nctracs.v1"
+                                title: NCTraCS Carolina Data Warehouse
+                              - value: "http://hapi.fhir.org/baseR4"
+                              - value: "https://open-ic.epic.com/FHIR/api/FHIR/DSTU2"
+                          selectorValue:
+                            value: "http://hapi.fhir.org/baseR4"
+                            title: Hapi FHIR base URL
+                      modelParameters:
+                      patientVariables:
+                  - piid: pdspi-mapper-example
+                    title: Example plugin for mapping the smart-fhir server
+                    pluginDependencies:
+                      - pdsph-fhir-example
+                    pluginType: mD
+                    settingsDefaults:
+                      pluginSelectors:
+                      modelParameters:
+                      patientVariables:
+                        - id: "LOINC:30525-0"
+                          how:
+                          title: Age
+                          legalValues:
+                            type: number
+                            minimum: "0"
+                  - piid: pdspi-guidance-example
+                    title: Example plugin for Amikacin dosing guidance
+                    pluginDependencies:
+                      - string
+                    pluginType: g
+                    pluginTypeTitle: guidance
+                    settingsDefaults:
+                      pluginSelectors:
+                        - id: dosing.rxCUI
+                          title: Drug
+                          legalValues:
+                            type: string
+                            enum:
+                              - value: "rxCUI:1596450"
+                                title: Gentamicin
+                              - value: "rxCUI:1723160"
+                                title: Amikacin
+                          selectorValue:
+                            value: "rxCUI:1596450"
+                            title: Amikacin
+                      modelParameters:
+                        - id: "pdspi-guidance-example:1"
+                          title: Extended interval nomogram
+                          parameterDescription: This calculator uses one of four extended-interval nomograms. Please choose one nomogram.
+                          legalValues:
+                            type: string
+                            enum:
+                              - Hartford
+                              - Urban-Craig
+                              - Conventional A
+                              - Conventional B
+                          parameterValue:
+                            value: Hartford
+                      patientVariables:
+                        - id: "LOINC:30525-0"
+                          certitude: 2
+                          how: The value was specified by the end user.
+                          title: Age
+                          variableValue:
+                            value: ".5"
+                            units: years
+                          why: Age is used to calculate the creatinine clearance. Dosing is lower for geriatric patient and contraindicated for pediatric patients
+                          legalValues:
+                            type: number
+                            minimum: "0"
+                      timestamp: "2019-12-03T13:41:09.942+00:00"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Message"
+                    example:
+                      - timestamp: "2019-09-20T00:00:01Z"
+                        event: "[<piid>] is not a valid plugin"
+                        source: client
+                        level: 4
+                        action: Returning all plugins
+                  configs:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Config"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Message"
+                    example:
+                      - timestamp: "2019-09-20T00:00:01Z"
+                        event: >-
+                          No default Mapper and multiple compatible Mappers for
+                          FHIR server [pdspi-fhir-example].
+                        source: admin user
+                        level: 1
+                        action: " Chose arbitrary Mapper[pdspi-mapper-example]"
+                  configs:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Config"
+                    example:
+                      - title: Aminoglycoside dosing guidance
+                        piid: pdspi-aminoglycoside-nomogram
+                        pluginType: g
+                        pluginSelectors:
+                          - title: Drug
+                            id: dosing.rxCUI
+                            selectorValue:
+                              value: "rxCUI:1596450"
+                              title: Gentamicin
+                        pluginParameterDefaults:
+                          - id: "pdspi-guidance-example:1"
+                            title: Extended interval nomogram
+                            parameterDescription: >-
+                              This calculator uses one of four extended-interval
+                              nomograms. Please choose one nomogram.
+                            parameterValue:
+                              value: Hartford
+                            legalValues:
+                              type: string
+                              enum:
+                                - Hartford
+                                - Urban-Craig
+                                - Conventional A
+                                - Conventional B
+                        requiredPatientVariables:
+                          - id: "LOINC:30525-0"
+                            title: Age
+                            legalValues:
+                              type: number
+                              minimum: "0"
+                            why: >-
+                              Age is used to calculate the creatinine clearance.
+                              Dosing is lower for geriatric patient and
+                              contraindicated for pediatric patients
+                          - id: "LOINC:39156-5"
+                            title: BMI
+                            legalValues:
+                              type: number
+                              minimum: "0"
+                            why: >-
+                              BMI is used to calculate the creatinine clearance.
+                              Dosing is higher for patients with higher BMI
+  /selectorConfig:
+    get:
+      summary: Selector configuration and default info for plugin(s)
+      description: >-
+        Gets list of selectors and their plugins, default parameter
+        settings, and required patient variables. Legal values for selectors is
+        optional, and if required, call the '/selectors' endpoint. Legal values
+        for a plugin's parameters and required patient variables, if any, can be
+        found with this call.
+      operationId: api.get_selector_config
+      parameters: []
+      responses:
+        "200":
+          description: Config matching query
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    selectors:
+                      type: array
+                      items:
+                        $ref: "#/components/schemas/PluginSelector"
+                    plugin:
+                      $ref: "#/components/schemas/Config"
+                  required:
+                    - selectors
+                    - plugin
+                  additionalProperties: false
+                example:
+                  {
+                    "selectors":
+                      [
+                        {
+                          "title": "FHIR URI - an URL (locator) or an URN (unique name)",
+                          "selectorValue":
+                            {
+                              "value": "http://hapi.fhir.org/baseR4",
+                              "title": "Happy FHIR base url",
+                            },
+                        },
+                      ],
+                    "plugin":
+                      {
+                        "title": "DOAC variable mapper",
+                        "piid": "pdspi-mapper-DOAC",
+                        "pluginType": "m",
+                        "settingsDefaults":
+                          {
+                            "pluginSelectors":
+                              [
+                                {
+                                  "title": "FHIR URI - an URL (locator) or an URN (unique name)",
+                                  "selectorValue":
+                                    {
+                                      "value": "http://hapi.fhir.org/baseR4",
+                                      "title": "Happy FHIR base url",
+                                    },
+                                },
+                              ],
+                            "modelParameters":
+                              [
+                                {
+                                  "id": "current-time",
+                                  "parameterDescription": "Compute variables relevant to this timestamp.",
+                                  "parameterValue":
+                                    { "value": "2019-09-20T00:00:01Z" },
+                                  "legalValues":
+                                    {
+                                      "type": "string",
+                                      "format": "time-stamp",
+                                    },
+                                },
+                              ],
+                            "patientVariables":
+                              [
+                                {
+                                  "id": "LOINC:30525-0",
+                                  "title": "Age",
+                                  "variableDescription": "Fractional age of patient relative to [current-time].",
+                                  "legalValues":
+                                    { "type": "number", "minimum": "0" },
+                                },
+                                {
+                                  "id": "1114195.extant",
+                                  "title": "Rivoroxaban, extant",
+                                  "variableDescription": "Dosing of rivoroxaban, based on the finding of any rxnorm codes found on the record that map to rxCUI 1114195.",
+                                  "legalValues": { "type": "number" },
+                                },
+                                {
+                                  "id": "1114195.intensity",
+                                  "title": "Rivoroxaban, dosage",
+                                  "variableDescription": "Dosing of rivoroxaban.",
+                                  "legalValues":
+                                    { "type": "number", "minimum": 0 },
+                                },
+                                {
+                                  "id": "HP:0001892.extant.days",
+                                  "title": "Bleeding, days since",
+                                  "variableDescription": "Days since the last bleeding event, relative to current-time. A value < -age means never. Bleeding events are identified by one of 50 ICD10 codes or 42 ICD9 codes.",
+                                  "legalValues": { "type": "number" },
+                                },
+                                {
+                                  "id": "HP:0000077.extant.boolean",
+                                  "title": "Kidney dysfunction, extant",
+                                  "variableDescription": "If true, then Kidney dysfunction was found in the record for the patient, relative to current-time.",
+                                  "legalValues": { "type": "boolean" },
+                                },
+                                {
+                                  "id": "1114195.extant.count",
+                                  "title": "Rivoroxaban dosing count",
+                                  "variableDescription": "Number of times patient was dosed with Rivoroxaban.",
+                                  "legalValues": { "type": "number" },
+                                },
+                              ],
+                          },
+                      },
+                  }
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Message"
+                    example:
+                      - timestamp: "2019-09-20T00:00:01Z"
+                        event: "[<piid>] is not a valid plugin"
+                        source: client
+                        level: 4
+                        action: Returning all plugins
+                  configs:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Config"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Message"
+                    example:
+                      - timestamp: "2019-09-20T00:00:01Z"
+                        event: >-
+                          No default Mapper and multiple compatible Mappers for
+                          FHIR server [pdspi-fhir-example].
+                        source: admin user
+                        level: 1
+                        action: " Chose arbitrary Mapper[pdspi-mapper-example]"
+                  configs:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Config"
+                    example:
+                      - title: Aminoglycoside dosing guidance
+                        piid: pdspi-aminoglycoside-nomogram
+                        pluginType: g
+                        pluginSelectors:
+                          - title: Drug
+                            id: dosing.rxCUI
+                            selectorValue:
+                              value: "rxCUI:1596450"
+                              title: Gentamicin
+                        pluginParameterDefaults:
+                          - id: "pdspi-guidance-example:1"
+                            title: Extended interval nomogram
+                            parameterDescription: >-
+                              This calculator uses one of four extended-interval
+                              nomograms. Please choose one nomogram.
+                            parameterValue:
+                              value: Hartford
+                            legalValues:
+                              type: string
+                              enum:
+                                - Hartford
+                                - Urban-Craig
+                                - Conventional A
+                                - Conventional B
+                        requiredPatientVariables:
+                          - id: "LOINC:30525-0"
+                            title: Age
+                            legalValues:
+                              type: number
+                              minimum: "0"
+                            why: >-
+                              Age is used to calculate the creatinine clearance.
+                              Dosing is lower for geriatric patient and
+                              contraindicated for pediatric patients
+                          - id: "LOINC:39156-5"
+                            title: BMI
+                            legalValues:
+                              type: number
+                              minimum: "0"
+                            why: >-
+                              BMI is used to calculate the creatinine clearance.
+                              Dosing is higher for patients with higher BMI
+  /selectors:
+    get:
+      summary: List all PDS selectors
+      description: >-
+        List selectors and the legal values that can be used for choosing
+        plugins. Optionally, call this endpoint to get the full list of available
+        selectors and their legal values. For example, two selectors might
+        be 1. drug type and 2. indication. If the client selects values for
+        the selector that matches all piid selector values, then this plugin
+        can provide guidance.
+      operationId: api.get_selectors
+      responses:
+        "200":
+          description: >-
+            List of all selectors used by installed plugins (possibly a subset
+            of all supported selectors).
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PluginSelector"
+                example:
+                  - title: Drug
+                    id: dosing.rxCUI
+                    legalValues:
+                      type: string
+                      enum:
+                        - value: "rxCUI:1596450"
+                          title: Gentamicin
+                        - value: "rxCUI:1114195"
+                        - value: "rxCUI:1546356"
+                        - value: "rxCUI:1364430"
+                        - value: "rxCUI:1599538"
+                        - value: "rxCUI:1927851"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Message"
+                    example:
+                      - timestamp: "2019-09-20T00:00:01Z"
+                        event: Unknown query paramaters
+                        source: client
+                        level: 4
+                        action: Ignoring query parameters
+                  selectors:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/PluginSelector"
+                    example:
+                      - title: Drug
+                        id: dosing.rxCUI
+                        legalValues:
+                          type: string
+                          enum:
+                            - value: "rxCUI:1596450"
+                              title: Gentamicin
+                            - value: "rxCUI:1114195"
+                            - value: "rxCUI:1546356"
+                            - value: "rxCUI:1364430"
+                            - value: "rxCUI:1599538"
+                            - value: "rxCUI:1927851"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Message"
+                    example:
+                      - timestamp: "2019-09-20T00:00:01Z"
+                        event: >-
+                          Guidance plugin[pdspi-guidance-example] not responding
+                          after multiple attempts
+                        source: pds
+                        level: 2
+                        action: "Disabled plugin[pdspi-guidance-example]"
+                  selectors:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/PluginSelector"
+                    example: []
+  /guidance:
+    post:
+      summary: "Given a patient ID list and a plugin id, return the guidance for all patients in the list"
+      operationId: api.get_guidance
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "#/components/schemas/Guidance"
+              example:
+                [{ piid: "pdspi-guidance-example", patientId: "smart-7321938" }]
+      responses:
+        "200":
+          description: Guidance matching query
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Guidance"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Message"
+                    example:
+                      - timestamp: "2019-09-20T00:00:01Z"
+                        event: "Missing patient variable[LOINC:30525-0]"
+                        source: pdspi-mapper-example
+                        level: 3
+                        action: >-
+                          Called plugin with missing values
+                          [pdspi-guidance-example]
+                      - timestamp: "2019-09-20T00:00:02Z"
+                        event: "Missing patient variable[LOINC:30525-0]"
+                        source: pdspi-guidance-example
+                        level: 3
+                        action: "Set LOINC:30525-0='85' for most conservative guidance"
+                  guidance:
+                    $ref: "#/components/schemas/Guidance"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Message"
+                    example:
+                      - timestamp: "2019-09-20T00:00:01Z"
+                        event: >-
+                          Guidance plugin results did not pass JSON
+                          validator:[{"valuE": "5"}]
+                        source: pdspi-guidance-example
+                        level: 3
+                        action: "Correction attempted: 'valuE' to 'value'."
+                  guidance:
+                    $ref: "#/components/schemas/Guidance"
+components:
+  schemas:
+    Message:
+      description: >-
+        This schema mirrors the 'Log' schema from tx-logging (see
+        github.com/RENCI/tx-logging).
+      type: object
+      required:
+        - timestamp
+        - event
+        - source
+        - level
+      properties:
+        "-id":
+          not: {}
+        timestamp:
+          type: string
+          format: date-time
+          example: "2019-09-20T00:00:00Z"
+        event:
+          type: string
+          example: >-
+            The specified mapper (pdspi-mapper-example) is not compatible with
+            the specified FHIR server (pdspi-fhir-hapi).
+        source:
+          type: string
+          example: admin user
+        level:
+          description: >-
+            The level value mirrors syslog values, as follows: 1 - alert,
+            'immediate action is needed' : e.g., the data will be returned, but
+            PDS picked a mapper/server at random because no default was
+            selected; 2 - critical: this could indicate resources are nearing
+            full, or similar; 3 - error: something unexpected happened, PDS
+            tried to correct for it, but the admin should be alerted; 4 -
+            warning: PDS had to correct something unexpectedly but all is well;
+            5 - notification, 'Normal but significant condition': a dashboard
+            might chose to render this message in a special console box; 6 -
+            informational: same as above, but for auditing; 7 - debugging: maybe
+            the dashboard has an optional debugging console box for handling
+            debug messages.
+          type: integer
+          enum:
+            - 1
+            - 2
+            - 3
+            - 4
+            - 5
+            - 6
+            - 7
+          example: 1
+        action:
+          type: string
+          example: >-
+            Arbitrarily chose this FHIR server from those available:
+            (pdspi-fhir-example). Only one FHIR server is available that is also
+            compatible with pdspi-mapper-example
+    Settings:
+      type: object
+      description: >-
+        Used for specifying factory defaults, admin over-ride defaults,
+        user-over-ride input values, and ultimately the values that the plugin
+        will use, or reports as having used.
+      properties:
+        pluginSelectors:
+          description: >-
+            Maps the piid to a set of selector values. Potentially, a decision tree could be
+            implemented here by prefacing each selectorarray item with logic,
+            but for this API version we will instead always AND all the selector
+            array elements. For example, 'if guidance is requried for drug _x_
+            AND indication _y_ then use plugin _z_'.
+          type: array
+          items:
+            $ref: "#/components/schemas/PluginSelector"
+          example:
+            - id: dosing.rxCUI
+              title: Drug
+              legalValues:
+                type: string
+                enum:
+                  - value: "rxCUI:1596450"
+                    title: Gentamicin
+                  - value: "rxCUI:1723160"
+                    title: Amikacin
+              selectorValue:
+                value: "rxCUI:1596450"
+                title: Amikacin
+        modelParameters:
+          description: >-
+            Default, typed values for any parameters that might be required by
+            the plugin
+          type: array
+          items:
+            $ref: "#/components/schemas/PluginParameter"
+          example:
+            - id: "pdspi-guidance-example:1"
+              title: Extended interval nomogram
+              parameterDescription: >-
+                This calculator uses one of four extended-interval nomograms.
+                Please choose one nomogram.
+              legalValues:
+                type: string
+                enum:
+                  - Hartford
+                  - Urban-Craig
+                  - Conventional A
+                  - Conventional B
+              parameterValue:
+                value: Hartford
+        patientVariables:
+          type: array
+          items:
+            $ref: "#/components/schemas/PatientVariable"
+          example:
+            - id: "LOINC:30525-0"
+              certitude: 1
+              how: The value was specified by the end user.
+              title: Age
+              variableValue:
+                value: ".5"
+                units: years
+              why: >-
+                Age is used to calculate the creatinine clearance. Dosing is
+                lower for geriatric patient and contraindicated for pediatric
+                patients
+              legalValues:
+                type: number
+                minimum: "0"
+        timestamp:
+          description: "If absent, defaults to current time. Can be overridden by patientVariables timestamp value on a variable-by-variable basis."
+          type: string
+          format: date-time
+          example: "2019-12-03T13:41:09.942+00:00"
+    PluginSelector:
+      type: object
+      description: >-
+        Used for selecting plugins. For example, a selector that provides the
+        value of a drug class informs what type of guidance plugin is required,
+        or an URL to a FHIR server informs FHIR server/mapper plugin combination
+        to use.
+      required:
+        - id
+      properties:
+        id:
+          type: string
+          description: >-
+            The client should have prior knowledge of the full list of selectors
+            available with this version of the mapper. This unique id is used to
+            determine which selector type is described. Stylistically, the id will
+            end in the community standard coding system used for this type, e.g.,
+            FHIR.URI, dosing.rxCUI. But not always, e.g., PDS:sars is a selector 
+            for choosing guidance for treatement vs capacity.
+          example: FHIR.URI
+        legalValues:
+          type: object
+          description: >-
+            If absent, all values are legal, so treat the value like a string.
+            Use the JSON schema,
+            https://json-schema.org/draft/2019-09/json-schema-validation.html.
+            For example, { type: 'string', 'enum': [ 'Gentamicin', 'Amikacin' ]
+            } to define an enumeration,  { 'type': 'number' } for a float, and {
+            'type': 'number', 'minimum': '0' } for a positive number, and {
+            'type': 'integer' } for an integer. Furthermore, a non-standard
+            'title' can be added in support of a human-readable string for the
+            type's value. This maybe be implemented by the PDS to aid in
+            debugging, however clients should not depend on this value. NOTE:
+            This value is actually an object type, but we use 'string' here to
+            overcome a shortcoming of the swagger ui. This design choice was
+            made in order to prioritize a better interactive documentation
+            experience for the API user.
+          example:
+            type: string
+            enum:
+              - value: "urn://cdwh.nctracs.v1"
+                title: NCTraCS Carolina Data Warehouse
+              - value: "http://hapi.fhir.org/baseR4"
+              - value: "https://open-ic.epic.com/FHIR/api/FHIR/DSTU2"
+        selectorValue:
+          type: string
+          description: >-
+            The title in the example is optional. NOTE: This value is actually an object type, but we use
+            'string' here to overcome a shortcoming of the swagger ui. This
+            design choice was made in order to prioritize a better interactive
+            documentation experience for the API user.
+          example:
+            value: "http://hapi.fhir.org/baseR4"
+            title: Hapi FHIR base URL
+        title:
+          type: string
+          example: FHIR URI - an URL (locator) or an URN (unique name)
+          description: Human-readable name for this selector type.
+    PluginParameter:
+      type: object
+      description:
+        Used for specifying factory defaults, admin over-ride defaults,
+        user-over-ride input values, and ultimately the values that the plugin
+        will use, or reports as having used, to parameterize models.
+      required:
+        - id
+        - parameterValue
+      properties:
+        id:
+          type: string
+          description: >-
+            The id for one of the parameters used by the plugin in question.
+            Parameters are completely defined by the plugin and need not be
+            interchangable with other plugins. The client will have no prior
+            knowledge for plugin parameters.
+          example: "pdspi-guidance-example:1"
+        title:
+          type: string
+          description: >-
+            A non-standardized, human-readable string to describe the id. May be
+            implemented by the PDS to aid in debugging, clients should not
+            depend on this value.
+          example: Extended interval nomogram
+        parameterDescription:
+          type: string
+          description: >-
+            A precise description of the parameter, provided by the plugin requiring
+            the parameter. This description can be served by the client to  guide the
+            user in overriding default parameter values. Plugins should consider using
+            a message catalog to hold parameterDescription strings in order to 
+            facilitate internationalization.
+          example: >-
+            This calculator uses one of four extended-interval nomograms. Please
+            choose one nomogram.
+        parameterValue:
+          type: object
+          description: >-
+            The actual value of the parameter. NOTE: This value is actually an object type, but
+            we use 'string' here to overcome a shortcoming of the swagger ui.
+            This design choice was made in order to prioritize a better
+            interactive documentation experience for the API user.
+          example:
+            value: Hartford
+        legalValues:
+          type: object
+          description: >-
+            If absent, all values are legal, so treat the value like a string.
+            Use the JSON schema,
+            https://json-schema.org/draft/2019-09/json-schema-validation.html.
+            For example, { type: 'string', 'enum': [ 'Gentamicin', 'Amikacin' ]
+            } to define an enumeration,  { 'type': 'number' } for a float, and {
+            'type': 'number', 'minimum': '0' } for a positive number, and {
+            'type': 'integer' } for an integer. NOTE: This value is actually an
+            object type, but we use 'string' here to overcome a shortcoming of
+            the swagger ui. This design choice was made in order to prioritize a
+            better interactive documentation experience for the API user.
+          example:
+            type: string
+            enum:
+              - Hartford
+              - Urban-Craig
+              - Conventional A
+              - Conventional B
+    PatientVariable:
+      description: >-
+        Used to specify EHR patient values as well as user-supplied overrides of
+        those EHR values, and/or user-supplied replacements for values missing
+        in the EHR.
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: string
+          description: >-
+            The id for one of the patient variables supported by this PDS
+            version. The client has the option of ignoring this variable if it
+            doesn't recognize the id, but if another plugin requires this variable, 
+            then the user won't have the option of overriding it if the client ignores it.
+            Stylistically, community standard coding system used for this type will 
+            preface the code used, e.g., LOINC:3025-0, ICD10:R53, HP:0000819, rxCUI:1596450, etc.
+          example: "LOINC:30525-0"
+        certitude:
+          type: integer
+          description: >-
+            The certitude of the value, 0 not certain, 1 somewhat certain, 2
+            certain. User-supplied values will always be '2' to avoid personal 
+            bias in reporting certitude, with the assumption that human error 
+            will be intercepted, and human intelligence overrides algorithm outputs.
+          example: 2
+        variableDescription:
+          type: string
+          description: >-
+            Description of the patient variable can optionally be set by the plugin. Patient
+            variable descriptions should describe the variable precisely; for
+            example, rather than say simply 'BMI',the variable might be
+            described as 'nearest BMI prior to intervention', or
+            'comma-delimited list of {BMI,date} objects for the patient with a
+            given study period, as defined by the 'study-start', 'study-end'
+            model parameters'. The comprehensive list of supported patient variables is tied to
+            the PDS release.
+          example: "The age is determined by subtracting the birthdate from the current time. Also known as 'chronological age' or 'Post Natal Age' (PNA). Specified as somen fraction of years, convention."
+        how:
+          type: string
+          description: >-
+            A value of 'The value was specified by the end user.' indicates
+            that the EHR value (whether or not it was missing in the EHR)
+            has been overriden by the client.
+          example: The value was specified by the end user.
+        title:
+          type: string
+          description: >-
+            A non-standardized, human-readable string to describe the id. May be
+            implemented by the PDS to aid in debugging, clients should not
+            depend on this value.
+          example: Age
+        variableValue:
+          description: >-
+            The type for the variableValue is defined by the legalValues, and thus is
+            the client informed on how to render the variableValue. The
+            variableValue may also include the 'units' field, which is optional,
+            and if left off, implies the system default units. It's up to the
+            guidance plugin to make unit conversions as needed by the guidance
+            model, just as it is up to the dashboard to make unit conversions as
+            needed by the end user. NOTE: The 'variableValue' is actually an object 
+            type, but we use 'string' here to overcome a shortcoming of the swagger 
+            ui. This design choice was made in order to prioritize a better 
+            interactive documentation experience for the API user.
+          type: object
+          example:
+            value: "0.5"
+            units: years
+        why:
+          type: string
+          description: >-
+            Provides the client with a human-readable, non-standard
+            justification for why the plugin needs this particular variable.
+            This can be rendered by the client to provide the end-user with
+            rationale for the patient values, but does not address how the value
+            was computed.
+          example: >-
+            Age is used to calculate the creatinine clearance. Dosing is lower
+            for geriatric patient and contraindicated for pediatric patients
+        legalValues:
+          type: string
+          description: >-
+            If absent, all values are legal, so treat the value like a string.
+            Use the JSON schema,
+            https://json-schema.org/draft/2019-09/json-schema-validation.html.
+            For example, { type: 'string', 'enum': [ 'Gentamicin', 'Amikacin' ]
+            } to define an enumeration,  { 'type': 'number' } for a float, and {
+            'type': 'number', 'minimum': '0' } for a positive number, and {
+            'type': 'integer' } for an integer. NOTE: This value is
+            actually an object type, but we use 'string' here to overcome a
+            shortcoming of the swagger ui. This design choice was made in order
+            to prioritize a better interactive documentation experience for the
+            API user.
+          example:
+            type: number
+            minimum: "0"
+        group:
+          type: string
+          description: >-
+            A 'tag' for grouping semantically similar variables. Used to inform
+            the client on how to render many patient variables, e.g., 'Symptom', 
+            'Profile', 'Pre-existing condition'. Can be safely ignored by client.
+          example: "Patient variable"
+        timestamp:
+          type: string
+          description: >-
+            The time used to compute the patient variable. For example, this could be the current time if a patient is presenting for treatment, or in a retrospective study, it could be an intervention date, or any date within the retrospective study timeframe.
+          format: date-time
+          example: "2020-07-01T14:29:15.453Z"
+    Guidance:
+      description: >-
+        Guidance, justification, visualization data and data type, as well as
+        cds-hooks compatible formats for direct integration with the EHR.
+      type: object
+      required:
+        - piid
+      properties:
+        piid:
+          type: string
+          example: pdspi-aminoglycoside-nomogram
+          description: >-
+            A string, uniquely identifies the enabled and installed plugin in
+            this deployment, used to identify this plugin in realtime for
+            retriving guidance. Note the dashboard client only needs access to
+            patient variables required by the installed/enabled plugins, and the
+            guidance plugin data access is restricted even further to only what
+            is neeed for guidance based on the selectors (need-to-know access to
+            patient data).
+        title:
+          description: An optional title for the guidance plugin
+          type: string
+          example: Aminoglycoside dosing guidance
+        txid:
+          type: string
+          description: >-
+            The transaction id sent in the GuidanceInputs. If none were sent, a
+            unique id will be created and sent back here.
+          example: 38-1
+        patientId:
+          description: >-
+            The ID of the patient for which guidance is required. If not
+            specified, depend only on the 'variableValue' in 'PatientVariable', which is part of 'inputs'
+          type: string
+          example: smart-7321938
+        settingsRequested:
+          $ref: "#/components/schemas/Settings"
+        settingsUsed:
+          $ref: "#/components/schemas/Settings"
+        cards:
+          type: array
+          description: "Set of suggested actions, per the CDS-Hooks standard"
+          items:
+            $ref: "#/components/schemas/Card"
+        advanced:
+          type: array
+          description: "Set of supporting data outputs for visualization"
+          items:
+            $ref: "#/components/schemas/Output"
+        timeout:
+          type: integer
+          description: >-
+            Number of milliseconds until time out. A reasonable factory system default is
+            120000 (2 minutes) for RUO applictions, and only 500ms for
+            clinical.
+        fhirPiid:
+          type: string
+          example: pdspi-fhir-example
+          description: >-
+            Uniquely identifies an enabled FHIR server plugin which is
+            compatible with the named mapper plugin. If not specified, the PDS
+            will use the default server.
+        mapperPiid:
+          type: string
+          example: pdspi-mapper-example
+          description: >-
+            Uniquely identifies an enabled mapper plugin to use for mapping FHIR
+            resources to variables that are relevant to the guidance plugin. If
+            not specified, PDS will use the default mapper.
+    Output:
+      type: object
+      description: supporting data output for visualization
+      properties:
+        id:
+          type: string
+          example: "oid-1"
+        name:
+          type: string
+          example: "Time-series data"
+        description:
+          type: string
+          example: "Information about time-series data"
+        data:
+          type: array
+          description: "data to be visualized"
+          items:
+            type: object
+        specs:
+          type: array
+          description: Vega-lite spec used for guidance visualization
+          items:
+            $ref: "#/components/schemas/Spec"
+    Card:
+      type: object
+      required:
+        - id
+        - summary
+        - indicator
+        - source
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        summary:
+          type: string
+          description: >-
+            cds-hooks: <140-character summary sentence for display to the user
+            inside of this card
+          example: some <140 char Summary Message
+        detail:
+          type: string
+          description: >-
+            cds-hooks: - optional detailed information to display (GitHub
+            Flavored Markdown)
+          example: some sort of optional GitHub Markdown details
+        indicator:
+          type: string
+          description: " urgency/importance of what this card conveys (info/warning/critical)"
+          example: info
+        source:
+          $ref: "#/components/schemas/Source"
+        suggestions:
+          type: array
+          items:
+            $ref: "#/components/schemas/Suggestion"
+        selectionBehavior:
+          type: string
+          description: " intended behavior of the suggestions. If suggestions present, value must be at-most-one"
+        links:
+          type: array
+          items:
+            $ref: "#/components/schemas/Link"
+    Spec:
+      type: object
+      required:
+        - title
+        - data
+      properties:
+        $schema:
+          type: string
+          description: URL to JSON schema for a vega-lite specification
+          example: "https://vega.github.io/schema/vega-lite/v4.json"
+        title:
+          type: string
+          description: title for the plot
+          example: Line chart
+        description:
+          type: string
+          example: Time-series line chart
+        width:
+          type: string
+          example: container
+        height:
+          type: string
+          example: container
+        autosize:
+          type: object
+          properties:
+            resize:
+              type: boolean
+              example: true
+        data:
+          type: object
+          description: An object describing the data source
+          properties:
+            name:
+              type: string
+              description: Provide a placeholder name and bind data at runtime
+              example: data
+        mark:
+          type: string
+          description: >-
+            type of the mark which is the basic visual building block of a
+            visualization
+          example: line
+        encoding:
+          type: object
+          description: visualization encodings
+          properties:
+            x:
+              type: object
+              description: visualization encodings for x axis
+              properties:
+                bin:
+                  type: boolean
+                  description: whether to aggregate data into bins
+                  example: true
+                field:
+                  type: string
+                  description: the field name in data to bind to x axis at runtime
+                  example: x
+                type:
+                  type: string
+                  description: type of the data field to bind for visualization
+                  example: quantitative
+                axis:
+                  type: object
+                  description: "specify axis properties, e.g., title of the axis"
+                  properties:
+                    title:
+                      type: string
+                      example: x axis
+            "y":
+              type: object
+              description: visualization encodings for y axis
+              properties:
+                aggregate:
+                  type: string
+                  description: >-
+                    the field name in data to aggregate and bind to y axis at
+                    run time
+                  example: count
+                field:
+                  type: string
+                  description: the field name in data to bind to y axis at runtime
+                  example: "y"
+                type:
+                  type: string
+                  description: type of the data field to bind for visualization
+                  example: quantitative
+                axis:
+                  type: object
+                  description: "specify axis properties, e.g., title of the axis"
+                  properties:
+                    title:
+                      type: string
+                      example: y axis
+            color:
+              type: object
+              description: visualization encodings for color
+              properties:
+                field:
+                  type: string
+                  description: the field name in data to bind to color at runtime
+                  example: group
+                type:
+                  type: string
+                  description: type of the data field to bind for visualization
+                  example: nominal
+    Source:
+      type: object
+      required:
+        - label
+      properties:
+        label:
+          type: string
+          description: >-
+            short, human-readable label to display source of the card’s
+            information
+          example: Human-readable source label
+        url:
+          type: string
+          description: >-
+            optional absolute URL to load to learn more about the organization
+            or data set
+          example: "https://example.com"
+        icon:
+          type: string
+          description: " absolute url for an icon for the source of this card (100x100 pixel PNG without any transparent regions)"
+          example: "https://example.com/img/icon-100px.png"
+    Suggestion:
+      type: object
+      required:
+        - label
+      properties:
+        uuid:
+          type: string
+          description: unique identifier for auditing and logging suggestions
+          example: e1187895-ad57-4ff7-a1f1-ccf954b2fe46
+        label:
+          type: string
+          description: human-readable label to display for this suggestion
+          example: Human-readable suggestion label
+        actions:
+          type: array
+          items:
+            $ref: "#/components/schemas/Action"
+    Action:
+      type: object
+      required:
+        - type
+        - description
+      properties:
+        type:
+          type: string
+          description: type of action being performed (create/update/delete)
+          example: create
+        description:
+          type: string
+          description: human-readable description of the suggested action
+          example: Create a prescription for Acetaminophen 250 MG
+        resource:
+          type: string
+          description: FHIR resource to create/update or id of resource to delete
+          example: MedicationRequest
+    Link:
+      type: object
+      required:
+        - label
+        - url
+        - type
+      properties:
+        label:
+          type: string
+          description: human-readable label to display
+          example: SMART Example App
+        url:
+          type: string
+          description: URL to GET when link is clicked
+        type:
+          type: string
+          description: "type of the given URL (absolute/smart) "
+        appContext:
+          type: string
+          description: additional context to share with a linked SMART app
+    Config:
+      type: object
+      required:
+        - piid
+        - pluginType
+      properties:
+        piid:
+          type: string
+          description: >-
+            A string, unique to this deployment, used to identify this plugin in
+            realtime
+          example: pdspi-mapper-DOAC
+        title:
+          type: string
+          description: Meaningful name for this plugin
+          example: DOAC variable mapper
+        enabled:
+          type: boolean
+          description: >-
+            Admin can 'disable' this plugin, and if so, prevent it from being
+            chosen on any client or dashboard.
+          example: true
+        pluginDependencies:
+          type: array
+          items:
+            type: string
+            description: >-
+              An array of container names upon which the plugin in question
+              depends. For example, 'txscience/pds-fhir-example:0.2.0'. Mapper
+              plugins must indicate a dependency on one or more FHIR plugins,
+              but dependencies are discouraged otherwise in order to maintain
+              the decoupling and reuse of plugins. Every plugin of type 'm' and
+              'mD' must have at least one 'f' or 'fD' plugin listed in
+              pluginDependencies, otherwise return 500.
+        pluginType:
+          type: string
+          enum:
+            - g
+            - m
+            - f
+            - fD
+            - mD
+          description: >-
+            A value identifying the plugin type. 
+            'g'=Guidance, 'c'=Convenience, 'm'=Mapper, 'f'=FHIR, 'mD'= Default Mapper, 'fD'=Default FHIR. In 
+            the clinical arena, only one FHIR server and only one mapper is 
+            allowed, and this can be indicated either with the defaults, or by 
+            only installing one mapper and one FHIR plugin type.
+          example: m
+        pluginTypeTitle:
+          type: string
+          enum:
+            - Guidance
+            - Mapper
+            - FHIR
+            - Default FHIR
+            - Default Mapper
+          description: >-
+            A human-readable value for the type. 'g'=Guidance, 'c'=Convenience, 
+            'm'=Mapper, 'f'=FHIR, 'mD'=Default Mapper, 'fD'=Default FHIR
+        settingsDefaults:
+          $ref: "#/components/schemas/Settings"

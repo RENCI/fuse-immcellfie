@@ -1,0 +1,44 @@
+version: '3.4'
+
+services:
+    
+  txrouter-test:
+    container_name: txrouter-test
+    build:
+      context: .
+      dockerfile: test/Dockerfile
+    image: tx-router-test:${TX_TAG}
+    command: ["--capture=sys", "-v", "-x"] # , "--timeout", "100", "-k", "test_run_container_get"]
+    environment:
+      API_PORT: ${TXROUTER_API_PORT}
+      COMPOSE_PROJECT_NAME: ${COMPOSE_PROJECT_NAME}
+      MONGO_HOST: ${MONGO_HOST}
+      MONGO_PORT: ${MONGO_PORT}
+      MONGO_COLLECTION: ${MONGO_COLLECTION}
+      MONGO_DATABASE: ${MONGO_DATABASE}
+      MONGO_NON_ROOT_USERNAME: ${MONGO_NON_ROOT_USERNAME}
+      MONGO_NON_ROOT_PASSWORD: ${MONGO_NON_ROOT_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      TX_TAG: ${TX_TAG}
+      HOST_CWD_MOUNT: /host_cwd_mount
+      HOST_CWD: ${PWD}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /tmp:/tmp
+      - ${PWD}:/host_cwd_mount
+    depends_on:
+      - mongodb
+      - txrouter
+
+  txrouter-test-flask-echo-server:
+    container_name: txrouter-test-flask-echo-server
+    build:
+      context: test/flask-echo-server
+      dockerfile: Dockerfile
+    image: tx-router-test-flask-echo-server:${TX_TAG}
+    environment:
+      HOST: 0.0.0.0
+      PORT: 80
+    
+
+
