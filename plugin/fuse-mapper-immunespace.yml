@@ -1,0 +1,11 @@
+version: "3.8"
+services:
+  fuse-mapper-immunespace:
+    port: 8080
+    image: fuse-mapper-immunespace:${fuse_mapper_immunespace_TAG}
+    environment:
+      INPUT_DIR: /shared
+      OUTPUT_DIR: /shared
+    #      LOG_LEVEL: DEBUG
+    # volumes:
+    #   - ./config:/usr/src/app/config

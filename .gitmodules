@@ -5,3 +5,12 @@
 [submodule "module/fuse-immcellfie-api"]
 	path = module/fuse-immcellfie-api
 	url = https://github.com/RENCI/fuse-immcellfie-api
+[submodule "module/fuse-mapper-immunespace"]
+	path = module/fuse-mapper-immunespace
+	url = https://github.com/RENCI/fuse-mapper-immunespace
+[submodule "module/fuse-analysis-cellfie"]
+	path = module/fuse-analysis-cellfie
+	url = https://github.com/RENCI/fuse-analysis-cellfie
+[submodule "module/fuse-server-immunespace"]
+	path = module/fuse-server-immunespace
+	url = https://github.com/RENCI/fuse-server-immunespace
