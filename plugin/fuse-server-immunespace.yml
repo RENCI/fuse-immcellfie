@@ -1,0 +1,8 @@
+version: "3.4"
+services:
+  fuse-server-immunespace:
+    image: fuse-server-immunespace:${fuse_server_immunespace_TAG}
+    environment:
+      FUSE_HOST: $FUSE_HOST
+      FUSE_PORT: $FUSE_PORT
+      FUSE_VERSION: $FUSE_VERSION

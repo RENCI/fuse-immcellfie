@@ -1,0 +1,8 @@
+version: "3.4"
+services:
+  fuse-analysis-cellfie:
+    image: fuse-analysis-cellfie:${fuse_analysis_cellfie_TAG}
+    environment:
+      FUSE_HOST: $FUSE_ANALYSIS_HOST
+      FUSE_PORT: $FUSE_ANALYSIS_PORT
+      FUSE_VERSION: $FUSE_ANALYSIS_VERSION

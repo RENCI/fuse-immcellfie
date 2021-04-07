@@ -6,6 +6,3 @@ services:
     environment:
       INPUT_DIR: /shared
       OUTPUT_DIR: /shared
-    #      LOG_LEVEL: DEBUG
-    # volumes:
-    #   - ./config:/usr/src/app/config
