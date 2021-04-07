@@ -1,8 +1,9 @@
 version: "3.4"
 services:
   fuse-server-immunespace:
+    port: 8080
     image: fuse-server-immunespace:${fuse_server_immunespace_TAG}
     environment:
-      FUSE_HOST: $FUSE_HOST
-      FUSE_PORT: $FUSE_PORT
-      FUSE_VERSION: $FUSE_VERSION
+      FUSE_HOST: $FUSE__SERVER_HOST
+      FUSE_PORT: $FUSE_SERVER_PORT
+      FUSE_VERSION: $FUSE__SERVER_VERSION
