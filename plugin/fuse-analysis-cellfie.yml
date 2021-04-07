@@ -1,6 +1,7 @@
 version: "3.4"
 services:
   fuse-analysis-cellfie:
+    port: 8080
     image: fuse-analysis-cellfie:${fuse_analysis_cellfie_TAG}
     environment:
       FUSE_HOST: $FUSE_ANALYSIS_HOST
