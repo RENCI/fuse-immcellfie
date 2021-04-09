@@ -62,7 +62,12 @@ def get_submodule_version(submodules, submodule_dir):
 def build_docker_image(submodule, tag, submodule_dir):
     image = f"{submodule}:{tag}"
     logger.info(f"building image {image} at {submodule_dir}")
-    build_images = subprocess.run(["docker", "build", "-t", image, submodule_dir])
+    network = f'--network={args.network}' if args.network else ''
+    build_cmd = ["docker", "build", "-t", image, submodule_dir]
+    if network:
+        build_cmd.append(network)
+    build_images = subprocess.run(build_cmd)
+
     # docker_client.images.build(
     #     path=submodule_dir,
     #     tag=image,
