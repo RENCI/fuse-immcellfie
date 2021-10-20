@@ -6,7 +6,6 @@
 ```
 IMMCELLFIEUSER=immcellfie-service
 IMMCELLFIEROOT= /home/immcellfie-service
-IMMCELLFIEHOST=
 ```
 ### conditional code:
 
