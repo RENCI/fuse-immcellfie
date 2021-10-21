@@ -1,9 +1,11 @@
 ## ImmCellfie Roles & Responsibilities
 
-* Permission to proceed with deployment- Project Manager (Laura Capps)
-* Feature branch- Developers (David Borland, Jason David Reilly)
-* Release branch- Release Manager (Shruti Raj)
-* PR creation- Developers (David Borland, Jason David Reilly)
-* Conflict resolution- Developers (David Borland, Jason David Reilly)
+* Permission to proceed with deployment- <b>Project Manager</b> (Laura Capps)
+* Feature branch- <b>Developers</b> (David Borland, Jason David Reilly)
+* Release branch- <b>Release Manager</b> (Shruti Raj)
+* PR creation- <b>Developers</b> (David Borland, Jason David Reilly)
+* Conflict resolution- <b>Developers</b> (David Borland, Jason David Reilly)
 * PR approval-
-* PR merging- 
+* PR merging-
+* Deployment- <b>Release Manager</b> (Shruti Raj)
+* Acceptance testing- <b>Project Manager</b> (Laura Capps), <b>UCSD</b>
