@@ -5,7 +5,6 @@
 * Release branch- <b>Release Manager</b> (Shruti Raj)
 * PR creation- <b>Developers</b> (David Borland, Jason David Reilly)
 * Conflict resolution- <b>Developers</b> (David Borland, Jason David Reilly)
-* PR approval-
-* PR merging-
+* PR merging- <b>Developers</b> (David Borland, Jason David Reilly)
 * Deployment- <b>Release Manager</b> (Shruti Raj)
 * Acceptance testing- <b>Project Manager</b> (Laura Capps), <b>UCSD</b>
