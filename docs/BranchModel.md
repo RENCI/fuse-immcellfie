@@ -1,4 +1,4 @@
-## ImmCellfie Branch Model
+## Immcellfie Branch Model
 
 * Branch off the main-branch.
 * Name the branch as follows:
