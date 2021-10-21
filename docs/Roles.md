@@ -1,4 +1,4 @@
-## ImmCellfie Roles & Responsibilities
+## Immcellfie Roles & Responsibilities
 
 * Permission to proceed with deployment- <b>Project Manager</b> (Laura Capps)
 * Feature branch- <b>Developers</b> (David Borland, Jason David Reilly)
