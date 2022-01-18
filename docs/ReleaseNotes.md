@@ -1,11 +1,5 @@
 # Release notes
 
-### Release 1.0.0 (11/22/2021):
-* Integration with the API for running Cellfie with ImmuneSpace data.
-* <b>1.0.1-</b> [Adjust task loading error message](https://github.com/RENCI/fuse-dashboard-immcellfie/commit/799eb7f49f3f026fced9b004d1322a28fd7ca5cb).
-* <b>1.0.2-</b> [passing on the filename to the run function, adding more wildcard to cors origins](https://github.com/RENCI/fuse-analysis/commit/0be15e353fff13e882451dc276e0e704a44a55c4), [fuse-dashboard-immcellfie PR#60](https://github.com/RENCI/fuse-dashboard-immcellfie/pull/60)
-* <b>1.0.3-</b> [rolling back filename changes](https://github.com/RENCI/fuse-analysis/commit/5eaa0aa74c0d73ec7d4f37305e544147c21894c6), [fuse-dashboard-immcellfie PR#61](https://github.com/RENCI/fuse-dashboard-immcellfie/pull/61).
-
 ### Release 1.1.0 (01/14/2022):
 * <b>1.1.0-</b> [fuse-analysis PR#1](https://github.com/RENCI/fuse-analysis/pull/1),<br/>
 [fuse-analysis PR#5](https://github.com/RENCI/fuse-analysis/pull/5),<br/>
@@ -28,3 +22,9 @@
 [fuse-dashboard-immcellfie PR#72](https://github.com/RENCI/fuse-dashboard-immcellfie/pull/72),<br/>
 [fuse-dashboard-immcellfie PR#73](https://github.com/RENCI/fuse-dashboard-immcellfie/pull/73). 
 * <b>1.1.1-</b> [small bugfix](https://github.com/RENCI/fuse-analysis/commit/2b1f93941f14bf090a54682d8121c1f4b6daa61a)
+
+### Release 1.0.0 (11/22/2021):
+* Integration with the API for running Cellfie with ImmuneSpace data.
+* <b>1.0.1-</b> [Adjust task loading error message](https://github.com/RENCI/fuse-dashboard-immcellfie/commit/799eb7f49f3f026fced9b004d1322a28fd7ca5cb).
+* <b>1.0.2-</b> [passing on the filename to the run function, adding more wildcard to cors origins](https://github.com/RENCI/fuse-analysis/commit/0be15e353fff13e882451dc276e0e704a44a55c4), [fuse-dashboard-immcellfie PR#60](https://github.com/RENCI/fuse-dashboard-immcellfie/pull/60)
+* <b>1.0.3-</b> [rolling back filename changes](https://github.com/RENCI/fuse-analysis/commit/5eaa0aa74c0d73ec7d4f37305e544147c21894c6), [fuse-dashboard-immcellfie PR#61](https://github.com/RENCI/fuse-dashboard-immcellfie/pull/61).
