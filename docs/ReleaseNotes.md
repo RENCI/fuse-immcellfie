@@ -22,6 +22,7 @@
 [fuse-dashboard-immcellfie PR#72](https://github.com/RENCI/fuse-dashboard-immcellfie/pull/72),<br/>
 [fuse-dashboard-immcellfie PR#73](https://github.com/RENCI/fuse-dashboard-immcellfie/pull/73). 
 * <b>1.1.1-</b> [small bugfix](https://github.com/RENCI/fuse-analysis/commit/2b1f93941f14bf090a54682d8121c1f4b6daa61a)
+* <b>1.1.2-</b> Testing suite for immunespace end points [fuse-analysis PR#3](https://github.com/RENCI/fuse-analysis/pull/3)
 
 ### Release 1.0.0 (11/22/2021):
 * Integration with the API for running Cellfie with ImmuneSpace data.
